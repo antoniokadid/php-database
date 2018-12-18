@@ -1,0 +1,23 @@
+{
+    "name": "antoniokadid/php-database",
+    "description": "A library that can be used as a database abstraction layer.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Antonio Kadid",
+            "email": "antoniokadid@gmail.com",
+            "homepage": "http://www.antoniokadid.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Database\\": "src/"
+        }
+    }
+}
