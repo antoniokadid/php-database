@@ -14,3 +14,7 @@ composer require antoniokadid/php-database:dev-master
 ## Examples
 
 Check examples directory.
+
+## LICENSE
+
+php-database is released under MIT license.
