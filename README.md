@@ -10,3 +10,7 @@ composer require antoniokadid/php-database:dev-master
 ## Requirements
 * PHP 7.1
 * PDO Extension
+
+## Examples
+
+Check examples directory.
