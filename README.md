@@ -13,7 +13,7 @@ composer require antoniokadid/php-database:dev-master
 
 ## Examples
 
-Check examples directory.
+Check examples folder.
 
 ## LICENSE
 
