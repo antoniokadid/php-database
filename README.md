@@ -1,11 +1,11 @@
-# php-database
+# php-mysql
 A library that can be used as a database abstraction layer.
 
 *Project under development.*
 
 ## Installation
 
-composer require antoniokadid/php-database:dev-master
+composer require antoniokadid/php-mysql:dev-master
 
 ## Requirements
 * PHP 7.1
@@ -17,4 +17,4 @@ Check examples folder.
 
 ## LICENSE
 
-php-database is released under MIT license.
+php-mysql is released under MIT license.
