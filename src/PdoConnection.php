@@ -29,12 +29,12 @@ class PdoConnection implements IDatabaseConnection
      * @throws DatabaseException
      */
     public function __construct(string $host,
-                                 int $port,
-                                 string $dbName,
-                                 string $username,
-                                 string $password,
-                                 string $encoding,
-                                 array $options = [])
+                                int $port,
+                                string $dbName,
+                                string $username,
+                                string $password,
+                                string $encoding,
+                                array $options = [])
     {
         $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbName, $encoding);
         $opt = [
@@ -57,26 +57,32 @@ class PdoConnection implements IDatabaseConnection
      */
     public function __destruct()
     {
-        if ($this->pdo == NULL)
-            return;
-
-        $this->rollback();
+        try {
+            $this->rollback();
+        } catch (DatabaseException $e) {
+        }
 
         $this->pdo = NULL;
     }
 
     /**
      * @return bool
+     *
+     * @throws DatabaseException
      */
     public function commit(): bool
     {
         if ($this->pdo == NULL)
             return FALSE;
 
-        if (!$this->pdo->inTransaction())
-            return FALSE;
+        try {
+            if (!$this->pdo->inTransaction())
+                return FALSE;
 
-        return $this->pdo->commit();
+            $this->pdo->commit();
+        } catch (PDOException $pdoEx) {
+            throw new DatabaseException('Unable to commit.', 0, $pdoEx);
+        }
     }
 
     /**
@@ -90,15 +96,11 @@ class PdoConnection implements IDatabaseConnection
     public function execute(string $sql, array $params = array()): int
     {
         if ($this->pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.');
+            return 0;
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            if ($stmt === FALSE)
-                throw new DatabaseException('Unable to prepare sql query in execute.');
-
-            if ($stmt->execute($params) === FALSE)
-                throw new DatabaseException('Unable to execute sql query in execute.');
+            $stmt->execute($params);
 
             return $stmt->rowCount();
         } catch (PDOException $pdoEx) {
@@ -111,26 +113,19 @@ class PdoConnection implements IDatabaseConnection
      * @param array $params
      *
      * @return array
+     *
      * @throws DatabaseException
      */
     public function query(string $sql, array $params = array()): array
     {
         if ($this->pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.');
+            return [];
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            if ($stmt === FALSE)
-                throw new DatabaseException('Unable to prepare sql query in query.');
+            $stmt->execute($params);
 
-            if ($stmt->execute($params) === FALSE)
-                throw new DatabaseException('Unable to execute sql query in query.');
-
-            $result = $stmt->fetchAll();
-            if ($result === FALSE)
-                throw new DatabaseException('Unable to fetch data in query');
-
-            return $result;
+            return $stmt->fetchAll();
         } catch (PDOException $pdoEx) {
             throw new DatabaseException('Unable to execute query.', 0, $pdoEx);
         }
@@ -146,21 +141,15 @@ class PdoConnection implements IDatabaseConnection
     public function querySingle(string $sql, array $params = array()): ?array
     {
         if ($this->pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.');
+            return NULL;
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            if ($stmt === FALSE)
-                throw new DatabaseException('Unable to prepare sql query in query single.');
-
-            if ($stmt->execute($params) === FALSE)
-                throw new DatabaseException('Unable to execute sql query in query single.');
+            $stmt->execute($params);
 
             $result = $stmt->fetch();
-            if ($result === FALSE)
-                throw new DatabaseException('Unable to fetch data in query single.');
 
-            return $result;
+            return $result === FALSE ? NULL : $result;
         } catch (PDOException $pdoEx) {
             throw new DatabaseException('Unable to execute query single.', 0, $pdoEx);
         }
@@ -170,15 +159,21 @@ class PdoConnection implements IDatabaseConnection
      * Rollback the active transaction.
      *
      * @return bool
+     *
+     * @throws DatabaseException
      */
     public function rollback(): bool
     {
         if ($this->pdo == NULL)
             return FALSE;
 
-        if (!$this->pdo->inTransaction())
-            return FALSE;
+        try {
+            if (!$this->pdo->inTransaction())
+                return FALSE;
 
-        return $this->pdo->rollBack();
+            $this->pdo->rollBack();
+        } catch (PDOException $pdoEx) {
+            throw new DatabaseException('Unable to rollback.', 0, $pdoEx);
+        }
     }
 }

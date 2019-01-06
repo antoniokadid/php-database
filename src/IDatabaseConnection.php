@@ -11,6 +11,8 @@ interface IDatabaseConnection
 {
     /**
      * @return bool
+     *
+     * @throws DatabaseException
      */
     public function commit(): bool;
 
@@ -29,6 +31,7 @@ interface IDatabaseConnection
      * @param array $params
      *
      * @return array
+     *
      * @throws DatabaseException
      */
     public function query(string $sql, array $params = array()): array;
@@ -38,6 +41,7 @@ interface IDatabaseConnection
      * @param array $params
      *
      * @return array|NULL
+     *
      * @throws DatabaseException
      */
     public function querySingle(string $sql, array $params = array()): ?array;
@@ -46,6 +50,8 @@ interface IDatabaseConnection
      * Rollback the active transaction.
      *
      * @return bool
+     *
+     * @throws DatabaseException
      */
     public function rollback(): bool;
 }
