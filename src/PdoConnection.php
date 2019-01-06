@@ -6,17 +6,17 @@ use PDO;
 use PDOException;
 
 /**
- * Class PdoMySqlConnection
+ * Class PdoConnection
  *
  * @package Database
  */
-class PdoMySqlConnection implements IDatabaseConnection
+class PdoConnection implements IDatabaseConnection
 {
     /** @var PDO */
     private $pdo;
 
     /**
-     * PdoMySqlConnection constructor.
+     * PdoConnection constructor.
      *
      * @param string $host
      * @param int $port
@@ -53,7 +53,7 @@ class PdoMySqlConnection implements IDatabaseConnection
     }
 
     /**
-     * PdoMySqlConnection destructor.
+     * PdoConnection destructor.
      */
     public function __destruct()
     {
