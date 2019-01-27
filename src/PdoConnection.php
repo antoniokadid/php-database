@@ -79,7 +79,7 @@ class PdoConnection implements IDatabaseConnection
             if (!$this->pdo->inTransaction())
                 return FALSE;
 
-            $this->pdo->commit();
+            return $this->pdo->commit();
         } catch (PDOException $pdoEx) {
             throw new DatabaseException('Unable to commit.', 0, $pdoEx);
         }
@@ -171,7 +171,7 @@ class PdoConnection implements IDatabaseConnection
             if (!$this->pdo->inTransaction())
                 return FALSE;
 
-            $this->pdo->rollBack();
+            return $this->pdo->rollBack();
         } catch (PDOException $pdoEx) {
             throw new DatabaseException('Unable to rollback.', 0, $pdoEx);
         }
