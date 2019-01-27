@@ -148,8 +148,11 @@ class PdoConnection implements IDatabaseConnection
             $stmt->execute($params);
 
             $result = $stmt->fetch();
+        
+            if ($result === FALSE || !is_array($result) || empty($result))
+                return NULL;
 
-            return $result === FALSE ? NULL : $result;
+            return $result;
         } catch (PDOException $pdoEx) {
             throw new DatabaseException('Unable to execute query single.', 0, $pdoEx);
         }
