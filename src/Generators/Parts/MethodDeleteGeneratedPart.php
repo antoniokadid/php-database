@@ -58,14 +58,14 @@ class MethodDeleteGeneratedPart extends GeneratedPart
             if ($propType === '\DateTime')
             {
                 if ($colType === 'DATE')
-                    return "\${$propName}->format('Y-m-d')";
+                    return "\$this->{$propName}->format('Y-m-d')";
                 else if ($colType === 'TIME')
-                    return "\${$propName}->format('H:i:s')";
+                    return "\$this->{$propName}->format('H:i:s')";
                 else
-                    return "\${$propName}->format('Y-m-d H:i:s')";
+                    return "\$this->{$propName}->format('Y-m-d H:i:s')";
             }
 
-            return "\${$propName}";
+            return "\$this->{$propName}";
         }, $primaryKeys));
 
         $methodBody .= TAB . TAB . "return \$this->connection->execute(\$sql, [{$queryParams}]);" . EOL;

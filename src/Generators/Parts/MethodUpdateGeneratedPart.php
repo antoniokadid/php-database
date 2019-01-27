@@ -85,11 +85,11 @@ class MethodUpdateGeneratedPart extends GeneratedPart
             if ($propType === '\DateTime')
             {
                 if ($colType === 'DATE')
-                    $methodBody .= "\${$propName}->format('Y-m-d')";
+                    $methodBody .= "\$this->{$propName}->format('Y-m-d')";
                 else if ($colType === 'TIME')
-                    $methodBody .= "\${$propName}->format('H:i:s')";
+                    $methodBody .= "\$this->{$propName}->format('H:i:s')";
                 else
-                    $methodBody .= "\${$propName}->format('Y-m-d H:i:s')";
+                    $methodBody .= "\$this->{$propName}->format('Y-m-d H:i:s')";
             }
             else
                 $methodBody .= "\$this->{$propName}";
