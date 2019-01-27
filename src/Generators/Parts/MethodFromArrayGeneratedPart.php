@@ -44,11 +44,18 @@ class MethodFromArrayGeneratedPart extends GeneratedPart
         {
             $propName = $property['propName'];
             $propType = $property['propType'];
+            $colType = $property['colType'];
             $serializedName = $property['propName'];
 
             if ($propType === '\DateTime')
             {
-                $methodBody .= EOL . TAB . TAB . "\$value = \\DateTime::createFromFormat('Y-m-d H:i:s', \$array['{$serializedName}'], new \\DateTimeZone('UTC'));";
+                if ($colType === 'DATE')
+                    $methodBody .= EOL . TAB . TAB . "\$value = \\DateTime::createFromFormat('Y-m-d', \$array['{$serializedName}'], new \\DateTimeZone('UTC'));";
+                else if ($colType === 'TIME')
+                    $methodBody .= EOL . TAB . TAB . "\$value = \\DateTime::createFromFormat('Η:i:s', \$array['{$serializedName}'], new \\DateTimeZone('UTC'));";
+                else
+                    $methodBody .= EOL . TAB . TAB . "\$value = \\DateTime::createFromFormat('Y-m-d H:i:s', \$array['{$serializedName}'], new \\DateTimeZone('UTC'));";
+
                 $methodBody .= EOL . TAB . TAB . "\$result->{$propName} = (\$value === FALSE) ? NULL : \$value;";
             }
             else

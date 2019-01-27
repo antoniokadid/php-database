@@ -50,7 +50,22 @@ class MethodDeleteGeneratedPart extends GeneratedPart
             TAB . TAB . "        WHERE {$queryParams}\";" . EOL . EOL;
 
         $queryParams = implode(", ", array_map(function (array $column) {
-            return "\$this->{$column['propName']}";
+            $propName = $column['propName'];
+            $propType = $column['propType'];
+            $colType = $column['colType'];
+            $nullable = $column['nullable'];
+
+            if ($propType === '\DateTime')
+            {
+                if ($colType === 'DATE')
+                    return "\${$propName}->format('Y-m-d')";
+                else if ($colType === 'TIME')
+                    return "\${$propName}->format('H:i:s')";
+                else
+                    return "\${$propName}->format('Y-m-d H:i:s')";
+            }
+
+            return "\${$propName}";
         }, $primaryKeys));
 
         $methodBody .= TAB . TAB . "return \$this->connection->execute(\$sql, [{$queryParams}]);" . EOL;

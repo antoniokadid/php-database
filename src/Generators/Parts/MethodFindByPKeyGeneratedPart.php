@@ -57,10 +57,18 @@ class MethodFindByPKeyGeneratedPart extends GeneratedPart
         $preparedStmtParams = implode(", ", array_map(function (array $column) {
             $propName = $column['propName'];
             $propType = $column['propType'];
+            $colType = $column['colType'];
             $nullable = $column['nullable'];
 
             if ($propType === '\DateTime')
-                return "\${$propName}->format('Y-m-d H:i:s')";
+            {
+                if ($colType === 'DATE')
+                    return "\${$propName}->format('Y-m-d')";
+                else if ($colType === 'TIME')
+                    return "\${$propName}->format('H:i:s')";
+                else
+                    return "\${$propName}->format('Y-m-d H:i:s')";
+            }
 
             return "\${$propName}";
         }, $primaryKeys));

@@ -39,6 +39,7 @@ class MethodAsArrayGeneratedPart extends GeneratedPart
         {
             $propName = $property['propName'];
             $propType = $property['propType'];
+            $colType = $property['colType'];
             $serializedName = $property['propName'];
 
             $methodBody .= EOL . TAB . TAB . TAB . "'{$serializedName}' => ";
@@ -47,7 +48,14 @@ class MethodAsArrayGeneratedPart extends GeneratedPart
                 $methodBody .= "(\$this->{$propName} != NULL) ? ";
 
             if ($propType === '\DateTime')
-                $methodBody .= "\$this->{$propName}->format('Y-m-d H:i:s')";
+            {
+                if ($colType === 'DATE')
+                    $methodBody .= "\$this->{$propName}->format('Y-m-d')";
+                else if ($colType === 'TIME')
+                    $methodBody .= "\$this->{$propName}->format('H:i:s')";
+                else
+                    $methodBody .= "\$this->{$propName}->format('Y-m-d H:i:s')";
+            }
             else
                 $methodBody .= "\$this->{$propName}";
 

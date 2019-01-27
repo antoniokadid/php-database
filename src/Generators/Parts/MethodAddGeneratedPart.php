@@ -47,6 +47,7 @@ class MethodAddGeneratedPart extends GeneratedPart
         {
             $propName = $column['propName'];
             $propType = $column['propType'];
+            $colType = $column['colType'];
             $nullable = $column['nullable'];
 
             $methodBody .= EOL . TAB . TAB . TAB;
@@ -55,7 +56,14 @@ class MethodAddGeneratedPart extends GeneratedPart
                 $methodBody .= "(\$this->{$propName} != NULL) ? ";
 
             if ($propType === '\DateTime')
-                $methodBody .= "\$this->{$propName}->format('Y-m-d H:i:s')";
+            {
+                if ($colType === 'DATE')
+                    $methodBody .= "\${$propName}->format('Y-m-d')";
+                else if ($colType === 'TIME')
+                    $methodBody .= "\${$propName}->format('H:i:s')";
+                else
+                    $methodBody .= "\${$propName}->format('Y-m-d H:i:s')";
+            }
             else
                 $methodBody .= "\$this->{$propName}";
 

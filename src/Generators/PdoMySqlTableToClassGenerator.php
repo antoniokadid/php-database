@@ -59,7 +59,7 @@ class PdoMySqlTableToClassGenerator
             if (preg_match($pattern, $column['DATA_TYPE']) == FALSE)
                 continue;
 
-            if ($column['DATA_TYPE'] === 'TINYINT' && $column['COLUMN_TYPE'] === 'TINYINT(1)')
+            if (strtoupper($column['DATA_TYPE']) === 'TINYINT' && strtoupper($column['COLUMN_TYPE']) === 'TINYINT(1)')
                 $type = 'bool';
 
             if ($type === '\DateTime')
@@ -128,6 +128,7 @@ class PdoMySqlTableToClassGenerator
                 'propName' => self::formatName(FMT_NAME_PROPERTY, $column['COLUMN_NAME']),
                 'propType' => $this->getMappedColumnType($column),
                 'colName' => self::graveIt($column['COLUMN_NAME']),
+                'colType' => strtoupper($column['DATA_TYPE']),
                 'nullable' => $column['IS_NULLABLE'] === 'YES',
                 'primary' => $column['COLUMN_KEY'] === 'PRI'
             ];
