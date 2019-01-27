@@ -37,12 +37,12 @@ class PdoConnection implements IDatabaseConnection
                                 array $options = [])
     {
         $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbName, $encoding);
-        $opt = [
+        $opt = array_replace([
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => FALSE,
             PDO::ATTR_CASE => PDO::CASE_NATURAL
-        ];
+        ], $options);
 
         try {
             $this->pdo = new PDO($dsn, $username, $password, $opt);
