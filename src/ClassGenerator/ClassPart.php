@@ -38,37 +38,6 @@ abstract class ClassPart
     public abstract function process(): string;
 
     /**
-     * @param int $countTab
-     * @param int $countEol
-     *
-     * @return string
-     */
-    protected function tabEol(int $countTab = 1, int $countEol = 1)
-    {
-        return $this->tab($countTab) . $this->eol($countEol);
-    }
-
-    /**
-     * @param int $count
-     *
-     * @return string
-     */
-    protected function tab(int $count = 1): string
-    {
-        return implode('', array_fill(0, $count, $this->generator->tab));
-    }
-
-    /**
-     * @param int $count
-     *
-     * @return string
-     */
-    protected function eol(int $count = 1): string
-    {
-        return implode('', array_fill(0, $count, $this->generator->eol));
-    }
-
-    /**
      * Get the columns that are not part of primary key.
      *
      * @return array
