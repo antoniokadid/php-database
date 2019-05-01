@@ -1,11 +1,11 @@
 <?php
 
-namespace Database;
+namespace AntonioKadid\MySql;
 
 /**
  * Interface IDatabaseConnection
  *
- * @package Database
+ * @package AntonioKadid\MySql
  */
 interface IDatabaseConnection
 {

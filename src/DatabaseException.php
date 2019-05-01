@@ -1,23 +1,51 @@
 <?php
 
-namespace Database;
+namespace AntonioKadid\MySql;
+
+use Exception;
+use Throwable;
 
 /**
  * Class DatabaseException
  *
- * @package Database
+ * @package AntonioKadid\MySql
  */
-class DatabaseException extends \Exception
+class DatabaseException extends Exception
 {
+    /** @var array */
+    private $_parameters;
+    /** @var string */
+    private $_query;
+
     /**
      * DatabaseException constructor.
      *
-     * @param string         $message
-     * @param int            $code
-     * @param \Throwable|null $previous
+     * @param string $message
+     * @param string $sqlQuery
+     * @param array $sqlParameters
+     * @param int $code
+     * @param Throwable|null $previous
      */
-    public function __construct($message = '', $code = 0, \Throwable $previous = NULL)
+    public function __construct(string $message = '', string $sqlQuery = '', array $sqlParameters = [], int $code = 0, Throwable $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
+
+        $this->_query = $sqlQuery;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuery(): string
+    {
+        return $this->_query;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters(): array
+    {
+        return $this->_parameters;
     }
 }

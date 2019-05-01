@@ -1,6 +1,6 @@
 <?php
 
-namespace Database;
+namespace AntonioKadid\MySql;
 
 use PDO;
 use PDOException;
@@ -8,7 +8,7 @@ use PDOException;
 /**
  * Class PdoConnection
  *
- * @package Database
+ * @package AntonioKadid\MySql
  */
 class PdoConnection implements IDatabaseConnection
 {
@@ -33,22 +33,24 @@ class PdoConnection implements IDatabaseConnection
                                 string $dbName,
                                 string $username,
                                 string $password,
-                                string $encoding,
+                                string $encoding = 'utf8',
                                 array $options = [])
     {
         $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbName, $encoding);
         $opt = array_replace([
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => FALSE,
             PDO::ATTR_CASE => PDO::CASE_NATURAL
         ], $options);
 
+        // Force exception mode
+        $opt[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+
         try {
             $this->pdo = new PDO($dsn, $username, $password, $opt);
             $this->pdo->beginTransaction();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to establish connection with database.', 0, $pdoEx);
+            throw new DatabaseException('Unable to establish connection with database.', '', [], 0, $pdoEx);
         }
     }
 
@@ -81,7 +83,7 @@ class PdoConnection implements IDatabaseConnection
 
             return $this->pdo->commit();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to commit.', 0, $pdoEx);
+            throw new DatabaseException('Failed: commit', '', [], 0, $pdoEx);
         }
     }
 
@@ -104,7 +106,7 @@ class PdoConnection implements IDatabaseConnection
 
             return $stmt->rowCount();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to execute query.', 0, $pdoEx);
+            throw new DatabaseException('Failed: execute', $sql, $params, 0, $pdoEx);
         }
     }
 
@@ -127,7 +129,7 @@ class PdoConnection implements IDatabaseConnection
 
             return $stmt->fetchAll();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to execute query.', 0, $pdoEx);
+            throw new DatabaseException('Failed: query', $sql, $params, 0, $pdoEx);
         }
     }
 
@@ -148,13 +150,13 @@ class PdoConnection implements IDatabaseConnection
             $stmt->execute($params);
 
             $result = $stmt->fetch();
-        
+
             if ($result === FALSE || !is_array($result) || empty($result))
                 return NULL;
 
             return $result;
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to execute query single.', 0, $pdoEx);
+            throw new DatabaseException('Failed: querySingle', $sql, $params, 0, $pdoEx);
         }
     }
 
@@ -176,7 +178,7 @@ class PdoConnection implements IDatabaseConnection
 
             return $this->pdo->rollBack();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to rollback.', 0, $pdoEx);
+            throw new DatabaseException('Failed: rollback', '', [], 0, $pdoEx);
         }
     }
 }
