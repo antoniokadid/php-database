@@ -6,7 +6,7 @@ A library that can be used as a database abstraction layer.
 ## Installation
 
 ```bash
-composer require antoniokadid/php-mysql:dev-master
+composer require antoniokadid/php-mysql
 ```
 
 ## Requirements
