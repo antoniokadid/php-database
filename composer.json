@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "AntonioKadid\\Mysql\\": "src/"
+            "AntonioKadid\\MySql\\": "src/"
         }
     }
 }
