@@ -90,7 +90,7 @@ class MySQLiConnection implements IDatabaseConnection
         if ($preparedStatement === FALSE)
             throw new DatabaseException($this->_mysqli->error, $sql, $params);
 
-        if ($this->bindParameters($preparedStatement, $params) !== FALSE)
+        if ($this->bindParameters($preparedStatement, $params) !== TRUE)
             throw new DatabaseException($this->_mysqli->error, $sql, $params);
 
         if ($preparedStatement->execute() !== TRUE)
@@ -114,7 +114,7 @@ class MySQLiConnection implements IDatabaseConnection
         if ($preparedStatement === FALSE)
             throw new DatabaseException($this->_mysqli->error, $sql, $params);
 
-        if ($this->bindParameters($preparedStatement, $params) !== FALSE)
+        if ($this->bindParameters($preparedStatement, $params) !== TRUE)
             throw new DatabaseException($this->_mysqli->error, $sql, $params);
 
         if ($preparedStatement->execute() !== TRUE)
@@ -158,6 +158,9 @@ class MySQLiConnection implements IDatabaseConnection
      */
     private function bindParameters(mysqli_stmt $stmt, array $params): bool
     {
+        if (empty($params))
+            return TRUE;
+
         $type = '';
         foreach ($params as $value) {
             if (is_string($value) || is_null($value))
