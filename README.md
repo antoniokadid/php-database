@@ -1,7 +1,7 @@
 # php-mysql
-A library that can be used as a database abstraction layer.
+A WYSIWYG library that can be used as a database connection layer.
 
-*Project under development.*
+*Project under development and may be heavily change. Use at your own risk.*
 
 ## Installation
 
@@ -12,6 +12,7 @@ composer require antoniokadid/php-mysql
 ## Requirements
 * PHP 7.1
 * PDO Extension
+* MySQL Improved Extension
 
 ## Examples
 
@@ -29,7 +30,6 @@ try
 }
 catch(DatabaseException $exception)
 {
-    $pdoException = $exception->getPrevious();
     $message = $exception->getMessage();
     $sqlQuery = $exception->getQuery();
     $sqlParameters = $exception->getParameters();

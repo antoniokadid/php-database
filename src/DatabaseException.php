@@ -20,17 +20,18 @@ class DatabaseException extends Exception
     /**
      * DatabaseException constructor.
      *
-     * @param string $message
-     * @param string $sqlQuery
-     * @param array $sqlParameters
-     * @param int $code
+     * @param string         $message
+     * @param string         $sqlQuery
+     * @param array          $parameters
+     * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = '', string $sqlQuery = '', array $sqlParameters = [], int $code = 0, Throwable $previous = NULL)
+    public function __construct(string $message = '', string $sqlQuery = '', array $parameters = [], int $code = 0, Throwable $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
 
         $this->_query = $sqlQuery;
+        $this->_parameters = $parameters;
     }
 
     /**

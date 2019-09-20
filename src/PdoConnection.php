@@ -10,21 +10,20 @@ use PDOException;
  *
  * @package AntonioKadid\MySql
  */
-class PdoConnection implements IDatabaseConnection
+class PdoConnection
 {
     /** @var PDO */
-    private $pdo;
+    private $_pdo;
 
     /**
      * PdoConnection constructor.
      *
      * @param string $host
-     * @param int $port
-     * @param $dbName
+     * @param int    $port
+     * @param string $dbName
      * @param string $username
      * @param string $password
      * @param string $encoding
-     * @param array $options
      *
      * @throws DatabaseException
      */
@@ -33,152 +32,113 @@ class PdoConnection implements IDatabaseConnection
                                 string $dbName,
                                 string $username,
                                 string $password,
-                                string $encoding = 'utf8',
-                                array $options = [])
+                                string $encoding = 'utf8')
     {
         $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbName, $encoding);
-        $opt = array_replace([
+        $options = [
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => FALSE,
-            PDO::ATTR_CASE => PDO::CASE_NATURAL
-        ], $options);
-
-        // Force exception mode
-        $opt[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+            PDO::ATTR_CASE => PDO::CASE_NATURAL,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
+            PDO::ATTR_AUTOCOMMIT => FALSE
+        ];
 
         try {
-            $this->pdo = new PDO($dsn, $username, $password, $opt);
-            $this->pdo->beginTransaction();
+            $this->_pdo = new PDO($dsn, $username, $password, $options);
+            $this->_pdo->beginTransaction();
         } catch (PDOException $pdoEx) {
             throw new DatabaseException('Unable to establish connection with database.', '', [], 0, $pdoEx);
         }
     }
 
     /**
-     * PdoConnection destructor.
+     * @throws DatabaseException
      */
     public function __destruct()
     {
-        try {
-            $this->rollback();
-        } catch (DatabaseException $e) {
-        }
-
-        $this->pdo = NULL;
+        $this->rollback();
+        $this->_pdo = NULL;
     }
 
     /**
-     * @return bool
-     *
-     * @throws DatabaseException
+     * @inheritDoc
      */
     public function commit(): bool
     {
-        if ($this->pdo == NULL)
-            return FALSE;
+        if ($this->_pdo == NULL)
+            throw new DatabaseException('Database connection not initialized.');
 
-        try {
-            if (!$this->pdo->inTransaction())
-                return FALSE;
+        if ($this->_pdo->inTransaction() !== TRUE)
+            throw new DatabaseException('Not in transaction.');
 
-            return $this->pdo->commit();
-        } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Failed: commit', '', [], 0, $pdoEx);
-        }
+        if (!$this->_pdo->commit())
+            throw new DatabaseException($this->_pdo->errorInfo()[2]);
+
+        return TRUE;
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     *
-     * @return int
-     *
-     * @throws DatabaseException
+     * @inheritDoc
      */
     public function execute(string $sql, array $params = array()): int
     {
-        if ($this->pdo == NULL)
-            return 0;
+        if ($this->_pdo == NULL)
+            throw new DatabaseException('Database connection not initialized.', $sql, $params);
 
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
+        if ($this->_pdo->inTransaction() !== TRUE)
+            throw new DatabaseException('Not in transaction.', $sql, $params);
 
-            return $stmt->rowCount();
-        } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Failed: execute', $sql, $params, 0, $pdoEx);
-        }
+        $preparedStatement = $this->_pdo->prepare($sql);
+        if ($preparedStatement === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+
+        $result = $preparedStatement->execute($params);
+        if ($result === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+
+        return $preparedStatement->rowCount();
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     *
-     * @return array
-     *
-     * @throws DatabaseException
+     * @inheritDoc
      */
-    public function query(string $sql, array $params = array()): array
+    public function query(string $sql, array $params = []): array
     {
-        if ($this->pdo == NULL)
-            return [];
+        if ($this->_pdo == NULL)
+            throw new DatabaseException('Database connection not initialized.', $sql, $params);
 
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
+        if ($this->_pdo->inTransaction() !== TRUE)
+            throw new DatabaseException('Not in transaction.', $sql, $params);
 
-            return $stmt->fetchAll();
-        } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Failed: query', $sql, $params, 0, $pdoEx);
-        }
+        $preparedStatement = $this->_pdo->prepare($sql);
+        if ($preparedStatement === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+
+        $result = $preparedStatement->execute($params);
+        if ($result === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+
+        $records = $preparedStatement->fetchAll();
+        if ($records === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+
+        return $records;
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     *
-     * @return array|NULL
-     * @throws DatabaseException
-     */
-    public function querySingle(string $sql, array $params = array()): ?array
-    {
-        if ($this->pdo == NULL)
-            return NULL;
-
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
-
-            $result = $stmt->fetch();
-
-            if ($result === FALSE || !is_array($result) || empty($result))
-                return NULL;
-
-            return $result;
-        } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Failed: querySingle', $sql, $params, 0, $pdoEx);
-        }
-    }
-
-    /**
-     * Rollback the active transaction.
-     *
-     * @return bool
-     *
-     * @throws DatabaseException
+     * @inheritDoc
      */
     public function rollback(): bool
     {
-        if ($this->pdo == NULL)
-            return FALSE;
+        if ($this->_pdo == NULL)
+            throw new DatabaseException('Database connection not initialized.');
 
-        try {
-            if (!$this->pdo->inTransaction())
-                return FALSE;
+        if ($this->_pdo->inTransaction() !== TRUE)
+            throw new DatabaseException('Not in transaction.');
 
-            return $this->pdo->rollBack();
-        } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Failed: rollback', '', [], 0, $pdoEx);
-        }
+        if (!$this->_pdo->rollBack())
+            throw new DatabaseException($this->_pdo->errorInfo()[2]);
+
+        return TRUE;
     }
 }

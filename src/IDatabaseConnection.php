@@ -10,6 +10,8 @@ namespace AntonioKadid\MySql;
 interface IDatabaseConnection
 {
     /**
+     * Commit the active transaction.
+     *
      * @return bool
      *
      * @throws DatabaseException
@@ -17,34 +19,29 @@ interface IDatabaseConnection
     public function commit(): bool;
 
     /**
-     * @param string $sql
-     * @param array $params
+     * Execute a DELETE, INSERT or UPDATE query.
      *
-     * @return int
+     * @param string $sql
+     * @param array  $params
+     *
+     * @return int The number of affected rows.
      *
      * @throws DatabaseException
      */
     public function execute(string $sql, array $params = array()): int;
 
     /**
+     * Execute a SELECT query.
+     *
      * @param string $sql
-     * @param array $params
+     * @param array  $params
      *
      * @return array
      *
      * @throws DatabaseException
      */
-    public function query(string $sql, array $params = array()): array;
+    public function query(string $sql, array $params = []): array;
 
-    /**
-     * @param string $sql
-     * @param array $params
-     *
-     * @return array|NULL
-     *
-     * @throws DatabaseException
-     */
-    public function querySingle(string $sql, array $params = array()): ?array;
 
     /**
      * Rollback the active transaction.
