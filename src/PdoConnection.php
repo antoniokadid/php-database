@@ -10,7 +10,7 @@ use PDOException;
  *
  * @package AntonioKadid\MySql
  */
-class PdoConnection
+class PdoConnection implements IDatabaseConnection
 {
     /** @var PDO */
     private $_pdo;
