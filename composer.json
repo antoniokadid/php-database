@@ -1,6 +1,6 @@
 {
     "name": "antoniokadid/php-mysql",
-    "description": "A library that can be used as a database abstraction layer.",
+    "description": "A PHP WYSIWYG library that can be used as a database abstraction layer.",
     "type": "library",
     "license": "MIT",
     "authors": [

@@ -1,5 +1,5 @@
 # php-mysql
-A WYSIWYG library that can be used as a database connection layer.
+A PHP WYSIWYG library that can be used as a database abstraction layer.
 
 *Project under development and may be heavily change. Use at your own risk.*
 
