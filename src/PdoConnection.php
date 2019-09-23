@@ -25,7 +25,7 @@ class PdoConnection implements IDatabaseConnection
      * @param string $password
      * @param string $encoding
      *
-     * @throws DatabaseException
+     * @throws DatabaseConnectionException
      */
     public function __construct(string $host,
                                 int $port,
@@ -47,17 +47,13 @@ class PdoConnection implements IDatabaseConnection
             $this->_pdo = new PDO($dsn, $username, $password, $options);
             $this->_pdo->beginTransaction();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseException('Unable to establish connection with database.', '', [], 0, $pdoEx);
+            throw new DatabaseConnectionException('Unable to establish connection with database.', 0, $pdoEx);
         }
     }
 
-    /**
-     * @throws DatabaseException
-     */
     public function __destruct()
     {
         $this->rollback();
-        $this->_pdo = NULL;
     }
 
     /**
@@ -73,6 +69,8 @@ class PdoConnection implements IDatabaseConnection
 
         if (!$this->_pdo->commit())
             throw new DatabaseException($this->_pdo->errorInfo()[2]);
+
+        $this->_pdo = NULL;
 
         return TRUE;
     }
@@ -131,14 +129,15 @@ class PdoConnection implements IDatabaseConnection
     public function rollback(): bool
     {
         if ($this->_pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.');
+            return FALSE;
 
         if ($this->_pdo->inTransaction() !== TRUE)
-            throw new DatabaseException('Not in transaction.');
+            return FALSE;
 
-        if (!$this->_pdo->rollBack())
-            throw new DatabaseException($this->_pdo->errorInfo()[2]);
+        $result = $this->_pdo->rollBack();
 
-        return TRUE;
+        $this->_pdo = NULL;
+
+        return $result;
     }
 }

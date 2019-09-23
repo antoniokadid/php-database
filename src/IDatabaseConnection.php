@@ -47,8 +47,6 @@ interface IDatabaseConnection
      * Rollback the active transaction.
      *
      * @return bool
-     *
-     * @throws DatabaseException
      */
     public function rollback(): bool;
 }

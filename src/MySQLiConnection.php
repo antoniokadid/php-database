@@ -16,7 +16,7 @@ class MySQLiConnection implements IDatabaseConnection
     private $_mysqli;
 
     /**
-     * Database constructor.
+     * MySQLiConnection constructor.
      *
      * @param string $host
      * @param int    $port
@@ -25,7 +25,7 @@ class MySQLiConnection implements IDatabaseConnection
      * @param string $password
      * @param string $encoding
      *
-     * @throws DatabaseException
+     * @throws DatabaseConnectionException
      */
     public function __construct(string $host,
                                 int $port,
@@ -36,26 +36,21 @@ class MySQLiConnection implements IDatabaseConnection
     {
         $this->_mysqli = new mysqli($host, $username, $password, $dbName, $port);
         if ($this->_mysqli->connect_errno !== 0)
-            throw new DatabaseException(sprintf('Cannot establish connection with the database: %s', $this->_mysqli->connect_error));
+            throw new DatabaseConnectionException(sprintf('Cannot establish connection with the database: %s', $this->_mysqli->connect_error));
 
         if ($this->_mysqli->set_charset($encoding) !== TRUE)
-            throw new DatabaseException('Cannot set character set.');
+            throw new DatabaseConnectionException('Cannot set character set.');
 
         if ($this->_mysqli->autocommit(FALSE) !== TRUE)
-            throw new DatabaseException('Cannot disable auto-commit.');
+            throw new DatabaseConnectionException('Cannot disable auto-commit.');
 
         if ($this->_mysqli->begin_transaction() !== TRUE)
-            throw new DatabaseException('Cannot initiate transaction.');
+            throw new DatabaseConnectionException('Cannot initiate transaction.');
     }
 
-    /**
-     * @throws DatabaseException
-     */
     public function __destruct()
     {
         $this->rollback();
-        $this->_mysqli->close();
-        $this->_mysqli = NULL;
     }
 
     /**
@@ -71,6 +66,9 @@ class MySQLiConnection implements IDatabaseConnection
 
         if ($this->_mysqli->commit() !== TRUE)
             throw new DatabaseException($this->_mysqli->error);
+
+        $this->_mysqli->close();
+        $this->_mysqli = NULL;
 
         return TRUE;
     }
@@ -139,15 +137,17 @@ class MySQLiConnection implements IDatabaseConnection
     public function rollback(): bool
     {
         if ($this->_mysqli == NULL)
-            throw new DatabaseException('Database connection not initialized.');
+            return FALSE;
 
         if ($this->_mysqli->ping() !== TRUE)
-            throw new DatabaseException('Database connection not active.');
+            return FALSE;
 
-        if ($this->_mysqli->rollback() !== TRUE)
-            throw new DatabaseException($this->_mysqli->error);
+        $result = $this->_mysqli->rollback();
 
-        return TRUE;
+        $this->_mysqli->close();
+        $this->_mysqli = NULL;
+
+        return $result;
     }
 
     /**
