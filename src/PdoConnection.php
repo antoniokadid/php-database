@@ -47,7 +47,7 @@ class PdoConnection implements IDatabaseConnection
             $this->_pdo = new PDO($dsn, $username, $password, $options);
             $this->_pdo->beginTransaction();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseConnectionException('Unable to establish connection with database.', 0, $pdoEx);
+            throw new DatabaseConnectionException($pdoEx->getMessage(), $pdoEx->getCode(), $pdoEx);
         }
     }
 
@@ -68,7 +68,7 @@ class PdoConnection implements IDatabaseConnection
             throw new DatabaseException('Not in transaction.');
 
         if (!$this->_pdo->commit())
-            throw new DatabaseException($this->_pdo->errorInfo()[2]);
+            throw new DatabaseException($this->_pdo->errorInfo()[2], '', [], $this->_pdo->errorInfo()[1]);
 
         $this->_pdo = NULL;
 
@@ -86,15 +86,15 @@ class PdoConnection implements IDatabaseConnection
         if ($this->_pdo->inTransaction() !== TRUE)
             throw new DatabaseException('Not in transaction.', $sql, $params);
 
-        $preparedStatement = $this->_pdo->prepare($sql);
-        if ($preparedStatement === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+        $statement = $this->_pdo->prepare($sql);
+        if ($statement === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params, $this->_pdo->errorInfo()[1]);
 
-        $result = $preparedStatement->execute($params);
+        $result = $statement->execute($params);
         if ($result === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+            throw new DatabaseException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
 
-        return $preparedStatement->rowCount();
+        return $statement->rowCount();
     }
 
     /**
@@ -108,17 +108,17 @@ class PdoConnection implements IDatabaseConnection
         if ($this->_pdo->inTransaction() !== TRUE)
             throw new DatabaseException('Not in transaction.', $sql, $params);
 
-        $preparedStatement = $this->_pdo->prepare($sql);
-        if ($preparedStatement === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+        $statement = $this->_pdo->prepare($sql);
+        if ($statement === FALSE)
+            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params, $this->_pdo->errorInfo()[1]);
 
-        $result = $preparedStatement->execute($params);
+        $result = $statement->execute($params);
         if ($result === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+            throw new DatabaseException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
 
-        $records = $preparedStatement->fetchAll();
+        $records = $statement->fetchAll();
         if ($records === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params);
+            throw new DatabaseException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
 
         return $records;
     }

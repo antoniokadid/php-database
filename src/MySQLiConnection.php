@@ -36,7 +36,7 @@ class MySQLiConnection implements IDatabaseConnection
     {
         $this->_mysqli = new mysqli($host, $username, $password, $dbName, $port);
         if ($this->_mysqli->connect_errno !== 0)
-            throw new DatabaseConnectionException(sprintf('Cannot establish connection with the database: %s', $this->_mysqli->connect_error));
+            throw new DatabaseConnectionException($this->_mysqli->connect_error, $this->_mysqli->connect_errno);
 
         if ($this->_mysqli->set_charset($encoding) !== TRUE)
             throw new DatabaseConnectionException('Cannot set character set.');
@@ -65,7 +65,7 @@ class MySQLiConnection implements IDatabaseConnection
             throw new DatabaseException('Database connection not active.');
 
         if ($this->_mysqli->commit() !== TRUE)
-            throw new DatabaseException($this->_mysqli->error);
+            throw new DatabaseException($this->_mysqli->error, '', [], $this->_mysqli->errno);
 
         $this->_mysqli->close();
         $this->_mysqli = NULL;
@@ -84,17 +84,17 @@ class MySQLiConnection implements IDatabaseConnection
         if ($this->_mysqli->ping() !== TRUE)
             throw new DatabaseException('Database connection not active.');
 
-        $preparedStatement = $this->_mysqli->prepare($sql);
-        if ($preparedStatement === FALSE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+        $statement = $this->_mysqli->prepare($sql);
+        if ($statement === FALSE)
+            throw new DatabaseException($this->_mysqli->error, $sql, $params, $this->_mysqli->errno);
 
-        if ($this->bindParameters($preparedStatement, $params) !== TRUE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+        if ($this->bindParameters($statement, $params) !== TRUE)
+            throw new DatabaseException($statement->error, $sql, $params, $statement->errno);
 
-        if ($preparedStatement->execute() !== TRUE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+        if ($statement->execute() !== TRUE)
+            throw new DatabaseException($statement->error, $sql, $params, $statement->errno);
 
-        return $preparedStatement->affected_rows;
+        return $statement->affected_rows;
     }
 
     /**
@@ -108,19 +108,19 @@ class MySQLiConnection implements IDatabaseConnection
         if ($this->_mysqli->ping() !== TRUE)
             throw new DatabaseException('Database connection not active.');
 
-        $preparedStatement = $this->_mysqli->prepare($sql);
-        if ($preparedStatement === FALSE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+        $statement = $this->_mysqli->prepare($sql);
+        if ($statement === FALSE)
+            throw new DatabaseException($this->_mysqli->error, $sql, $params, $this->_mysqli->errno);
 
-        if ($this->bindParameters($preparedStatement, $params) !== TRUE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+        if ($this->bindParameters($statement, $params) !== TRUE)
+            throw new DatabaseException($statement->error, $sql, $params, $statement->errno);
 
-        if ($preparedStatement->execute() !== TRUE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+        if ($statement->execute() !== TRUE)
+            throw new DatabaseException($statement->error, $sql, $params, $statement->errno);
 
-        $preparedResult = $preparedStatement->get_result();
+        $preparedResult = $statement->get_result();
         if ($preparedResult === FALSE)
-            throw new DatabaseException($this->_mysqli->error, $sql, $params);
+            throw new DatabaseException($statement->error, $sql, $params, $statement->errno);
 
         $result = [];
         while (($record = $preparedResult->fetch_assoc()) != NULL)
