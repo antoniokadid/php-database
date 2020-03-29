@@ -1,5 +1,5 @@
 {
-    "name": "antoniokadid/php-mysql",
+    "name": "antoniokadid/wappkit-core-mysql",
     "description": "A PHP library to connect with MySQL.",
     "type": "library",
     "license": "MIT",
