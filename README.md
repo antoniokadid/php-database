@@ -1,5 +1,5 @@
 # WAPPKit Core - MySQL
-A PHP library to define collections of objects.
+A PHP library to connect with MySQL.
 
 Part of Web Application Kit (WAPPKit) Core which powers WAPPKit, a privately owned CMS.
 
