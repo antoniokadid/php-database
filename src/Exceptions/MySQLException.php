@@ -1,16 +1,16 @@
 <?php
 
-namespace AntonioKadid\MySql;
+namespace AntonioKadid\WAPPKitCore\Database\MySQL\Exceptions;
 
 use Exception;
 use Throwable;
 
 /**
- * Class DatabaseException
+ * Class MySQLException
  *
- * @package AntonioKadid\MySql
+ * @package AntonioKadid\WAPPKitCore\Database\MySQL\Exceptions
  */
-class DatabaseException extends Exception
+class MySQLException extends Exception
 {
     /** @var array */
     private $_parameters;
@@ -18,20 +18,20 @@ class DatabaseException extends Exception
     private $_query;
 
     /**
-     * DatabaseException constructor.
+     * MySQLException constructor.
      *
      * @param string         $message
      * @param string         $sqlQuery
-     * @param array          $parameters
+     * @param array          $sqlQueryParameters
      * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = '', string $sqlQuery = '', array $parameters = [], int $code = 0, Throwable $previous = NULL)
+    public function __construct(string $message = '', string $sqlQuery = '', array $sqlQueryParameters = [], int $code = 0, Throwable $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
 
         $this->_query = $sqlQuery;
-        $this->_parameters = $parameters;
+        $this->_parameters = $sqlQueryParameters;
     }
 
     /**

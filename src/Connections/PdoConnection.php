@@ -1,16 +1,18 @@
 <?php
 
-namespace AntonioKadid\MySql;
+namespace AntonioKadid\WAPPKitCore\Database\MySQL\Connections;
 
+use AntonioKadid\WAPPKitCore\Database\MySQL\Exceptions\MySQLException;
+use AntonioKadid\WAPPKitCore\Database\MySQL\IMySQLConnection;
 use PDO;
 use PDOException;
 
 /**
  * Class PdoConnection
  *
- * @package AntonioKadid\MySql
+ * @package AntonioKadid\WAPPKitCore\Database\MySQL\Connections
  */
-class PdoConnection implements IDatabaseConnection
+class PdoConnection implements IMySQLConnection
 {
     /** @var PDO */
     private $_pdo;
@@ -25,7 +27,7 @@ class PdoConnection implements IDatabaseConnection
      * @param string $password
      * @param string $encoding
      *
-     * @throws DatabaseConnectionException
+     * @throws MySQLException
      */
     public function __construct(string $host,
                                 int $port,
@@ -47,7 +49,7 @@ class PdoConnection implements IDatabaseConnection
             $this->_pdo = new PDO($dsn, $username, $password, $options);
             $this->_pdo->beginTransaction();
         } catch (PDOException $pdoEx) {
-            throw new DatabaseConnectionException($pdoEx->getMessage(), $pdoEx->getCode(), $pdoEx);
+            throw new MySQLException($pdoEx->getMessage(), '', [], $pdoEx->getCode(), $pdoEx);
         }
     }
 
@@ -62,13 +64,13 @@ class PdoConnection implements IDatabaseConnection
     public function commit(): bool
     {
         if ($this->_pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.');
+            throw new MySQLException('Database connection not initialized.');
 
         if ($this->_pdo->inTransaction() !== TRUE)
-            throw new DatabaseException('Not in transaction.');
+            throw new MySQLException('Not in transaction.');
 
         if (!$this->_pdo->commit())
-            throw new DatabaseException($this->_pdo->errorInfo()[2], '', [], $this->_pdo->errorInfo()[1]);
+            throw new MySQLException($this->_pdo->errorInfo()[2], '', [], $this->_pdo->errorInfo()[1]);
 
         $this->_pdo = NULL;
 
@@ -81,18 +83,18 @@ class PdoConnection implements IDatabaseConnection
     public function execute(string $sql, array $params = array()): int
     {
         if ($this->_pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.', $sql, $params);
+            throw new MySQLException('Database connection not initialized.', $sql, $params);
 
         if ($this->_pdo->inTransaction() !== TRUE)
-            throw new DatabaseException('Not in transaction.', $sql, $params);
+            throw new MySQLException('Not in transaction.', $sql, $params);
 
         $statement = $this->_pdo->prepare($sql);
         if ($statement === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params, $this->_pdo->errorInfo()[1]);
+            throw new MySQLException($this->_pdo->errorInfo()[2], $sql, $params, $this->_pdo->errorInfo()[1]);
 
         $result = $statement->execute($params);
         if ($result === FALSE)
-            throw new DatabaseException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
+            throw new MySQLException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
 
         return $statement->rowCount();
     }
@@ -103,22 +105,22 @@ class PdoConnection implements IDatabaseConnection
     public function query(string $sql, array $params = []): array
     {
         if ($this->_pdo == NULL)
-            throw new DatabaseException('Database connection not initialized.', $sql, $params);
+            throw new MySQLException('Database connection not initialized.', $sql, $params);
 
         if ($this->_pdo->inTransaction() !== TRUE)
-            throw new DatabaseException('Not in transaction.', $sql, $params);
+            throw new MySQLException('Not in transaction.', $sql, $params);
 
         $statement = $this->_pdo->prepare($sql);
         if ($statement === FALSE)
-            throw new DatabaseException($this->_pdo->errorInfo()[2], $sql, $params, $this->_pdo->errorInfo()[1]);
+            throw new MySQLException($this->_pdo->errorInfo()[2], $sql, $params, $this->_pdo->errorInfo()[1]);
 
         $result = $statement->execute($params);
         if ($result === FALSE)
-            throw new DatabaseException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
+            throw new MySQLException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
 
         $records = $statement->fetchAll();
         if ($records === FALSE)
-            throw new DatabaseException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
+            throw new MySQLException($statement->errorInfo()[2], $sql, $params, $statement->errorInfo()[1]);
 
         return $records;
     }

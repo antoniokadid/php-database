@@ -1,22 +1,24 @@
 <?php
 
-namespace AntonioKadid\MySql;
+namespace AntonioKadid\WAPPKitCore\Database\MySQL;
+
+use AntonioKadid\WAPPKitCore\Database\MySQL\Exceptions\MySQLException;
 
 /**
- * Interface IDatabaseConnection
+ * Interface IMySQLConnection
  *
- * @package AntonioKadid\MySql
+ * @package AntonioKadid\WAPPKitCore\Database\MySQL
  */
-interface IDatabaseConnection
+interface IMySQLConnection
 {
     /**
      * Commit the active transaction.
      *
      * @return bool
      *
-     * @throws DatabaseException
+     * @throws MySQLException
      */
-    public function commit(): bool;
+    function commit(): bool;
 
     /**
      * Execute a DELETE, INSERT or UPDATE query.
@@ -26,9 +28,9 @@ interface IDatabaseConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws DatabaseException
+     * @throws MySQLException
      */
-    public function execute(string $sql, array $params = array()): int;
+    function execute(string $sql, array $params = []): int;
 
     /**
      * Execute a SELECT query.
@@ -38,9 +40,9 @@ interface IDatabaseConnection
      *
      * @return array
      *
-     * @throws DatabaseException
+     * @throws MySQLException
      */
-    public function query(string $sql, array $params = []): array;
+    function query(string $sql, array $params = []): array;
 
 
     /**
@@ -48,5 +50,5 @@ interface IDatabaseConnection
      *
      * @return bool
      */
-    public function rollback(): bool;
+    function rollback(): bool;
 }

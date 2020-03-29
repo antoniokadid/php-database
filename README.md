@@ -1,12 +1,14 @@
-# php-mysql
-A PHP WYSIWYG library that can be used as a database abstraction layer.
+# WAPPKit Core - MySQL
+A PHP library to define collections of objects.
 
-*Project under development and may be heavily change. Use at your own risk.*
+Part of Web Application Kit (WAPPKit) Core which powers WAPPKit, a privately owned CMS.
+
+*Project under development and may be subject to a lot of changes. Use at your own risk.*
 
 ## Installation
 
 ```bash
-composer require antoniokadid/php-mysql
+composer require antoniokadid/wappkit-core-mysql
 ```
 
 ## Requirements
@@ -17,8 +19,8 @@ composer require antoniokadid/php-mysql
 ## Examples
 
 ```php
-use AntonioKadid\MySql\PdoConnection;
-use AntonioKadid\MySql\DatabaseException;
+use AntonioKadid\WAPPKitCore\Database\MySQL\Connections\PdoConnection;
+use AntonioKadid\WAPPKitCore\Database\MySQL\Exceptions\MySQLException;
 
 try
 {
@@ -28,7 +30,7 @@ try
 
     $connection->commit();
 }
-catch(DatabaseException $exception)
+catch(MySQLException $exception)
 {
     $message = $exception->getMessage();
     $sqlQuery = $exception->getQuery();
@@ -38,4 +40,4 @@ catch(DatabaseException $exception)
 
 ## LICENSE
 
-php-mysql is released under MIT license.
+MIT license.
