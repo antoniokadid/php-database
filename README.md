@@ -8,7 +8,7 @@ Part of Web Application Kit (WAPPKit) Core which powers WAPPKit, a privately own
 ## Installation
 
 ```bash
-composer require antoniokadid/wappkit-core-mysql
+composer require antoniokadid/wappkit-core-mysql:dev-master
 ```
 
 ## Requirements
